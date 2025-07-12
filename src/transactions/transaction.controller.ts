@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { TransactionService } from "./transaction.service";
-import {prisma} from "../prisma/client";
 
 const transactionService = new TransactionService();
 
@@ -8,18 +7,20 @@ const transactionService = new TransactionService();
 export const getTransactions = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     const dateParam = req.query.date as string;
+    const typeParam = req.query.type as string;
 
     if (!userId) {
         return res.status(401).json({ error: "Unauthorized" });
     }
 
     try {
-        if (dateParam) {
-            const transactions = await transactionService.getTransactionForDate(userId, dateParam);
+        // Si se envía date o type, aplicamos filtro
+        if (dateParam || typeParam) {
+            const transactions = await transactionService.getTransactionsFiltered(userId, dateParam, typeParam);
             return res.json(transactions);
         } else {
             const transactions = await transactionService.getTransactions(userId);
-            res.json(transactions);
+            return res.json(transactions);
         }
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });

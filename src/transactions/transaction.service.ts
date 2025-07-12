@@ -18,27 +18,29 @@ export class TransactionService {
             throw new Error("Internal server error");
         }
     }
+    
+    async getTransactionsFiltered(userId: number, dateParam?: string, typeParam?: string) {
+        const where: any = { userId };
 
-    async getTransactionForDate(userId: number, dateParam: string) {
-        const start = new Date(dateParam + "T00:00:00Z");
-        const end = new Date(dateParam + "T23:59:59.999Z");
+        if (dateParam) {
+            const start = new Date(dateParam + "T00:00:00Z");
+            const end = new Date(dateParam + "T23:59:59.999Z");
+            where.createdAt = { gte: start, lte: end };
+        }
+
+        if (typeParam && (typeParam === "INCOME" || typeParam === "EXPENSE")) {
+            where.type = typeParam;
+        }
 
         try {
             const transactions = await prisma.transaction.findMany({
-                where: {
-                    userId,
-                    createdAt: {
-                    gte: start,
-                    lte: end,
-                    },
-                },
-                orderBy: { createdAt: "desc" },
+                where,
+                orderBy: { createdAt: 'desc' },
             });
-
             return transactions;
         } catch (error) {
-            console.error("Error fetching transactions:", error);
-            throw new Error("Internal server error");
+            // Manejo de error...
+            throw error;
         }
     }
 
