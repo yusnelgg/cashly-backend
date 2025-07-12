@@ -14,7 +14,6 @@ export const getTransactions = async (req: Request, res: Response) => {
     }
 
     try {
-        // Si se envía date o type, aplicamos filtro
         if (dateParam || typeParam) {
             const transactions = await transactionService.getTransactionsFiltered(userId, dateParam, typeParam);
             return res.json(transactions);

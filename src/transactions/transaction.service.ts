@@ -39,7 +39,6 @@ export class TransactionService {
             });
             return transactions;
         } catch (error) {
-            // Manejo de error...
             throw error;
         }
     }
