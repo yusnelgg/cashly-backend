@@ -4,12 +4,35 @@ const prisma = new PrismaClient();
 
 export class TransactionService {
 
-    async getTransactions(userId: string) {
+    async getTransactions(userId: number) {
 
         try {
             const transactions = await prisma.transaction.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },
+            });
+
+            return transactions;
+        } catch (error) {
+            console.error("Error fetching transactions:", error);
+            throw new Error("Internal server error");
+        }
+    }
+
+    async getTransactionForDate(userId: number, dateParam: string) {
+        const start = new Date(dateParam + "T00:00:00Z");
+        const end = new Date(dateParam + "T23:59:59.999Z");
+
+        try {
+            const transactions = await prisma.transaction.findMany({
+                where: {
+                    userId,
+                    createdAt: {
+                    gte: start,
+                    lte: end,
+                    },
+                },
+                orderBy: { createdAt: "desc" },
             });
 
             return transactions;

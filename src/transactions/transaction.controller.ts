@@ -7,13 +7,20 @@ const transactionService = new TransactionService();
 
 export const getTransactions = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
+    const dateParam = req.query.date as string;
+
     if (!userId) {
         return res.status(401).json({ error: "Unauthorized" });
     }
 
     try {
-        const transactions = await transactionService.getTransactions(userId);
-        res.json(transactions);
+        if (dateParam) {
+            const transactions = await transactionService.getTransactionForDate(userId, dateParam);
+            return res.json(transactions);
+        } else {
+            const transactions = await transactionService.getTransactions(userId);
+            res.json(transactions);
+        }
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
     }
